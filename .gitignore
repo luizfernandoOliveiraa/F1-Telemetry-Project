@@ -31,3 +31,5 @@ config.json
 # Editor/IDE
 # .idea/
 # .vscode/
+.specs
+.kb
