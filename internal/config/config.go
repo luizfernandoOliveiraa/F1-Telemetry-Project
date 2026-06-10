@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strconv"
 	"sync"
 )
 
@@ -63,6 +64,8 @@ func LoadConfig(path string) (*Config, error) {
 		return nil, err
 	}
 
+	overrideWithEnv(&c)
+
 	return &c, nil
 }
 
@@ -77,4 +80,40 @@ func SaveConfig(path string, c *Config) error {
 	}
 
 	return os.WriteFile(path, data, 0644)
+}
+
+func overrideWithEnv(c *Config) {
+	if val := os.Getenv("UDP_PORT"); val != "" {
+		if port, err := strconv.Atoi(val); err == nil {
+			c.UDPPort = port
+		}
+	}
+	if val := os.Getenv("KAFKA_BROKER"); val != "" {
+		c.KafkaBroker = val
+	} else if val := os.Getenv("KAFKA_BROKERS"); val != "" {
+		c.KafkaBroker = val
+	}
+	if val := os.Getenv("KAFKA_TOPIC"); val != "" {
+		c.KafkaTopic = val
+	}
+	if val := os.Getenv("AZURE_STORAGE_ACCOUNT"); val != "" {
+		c.AzureStorageAccount = val
+	} else if val := os.Getenv("AZURE_STORAGE_ACCOUNT_NAME"); val != "" {
+		c.AzureStorageAccount = val
+	}
+	if val := os.Getenv("AZURE_CONTAINER"); val != "" {
+		c.AzureContainer = val
+	} else if val := os.Getenv("AZURE_STORAGE_CONTAINER"); val != "" {
+		c.AzureContainer = val
+	}
+	if val := os.Getenv("AZURE_DIRECTORY"); val != "" {
+		c.AzureDirectory = val
+	} else if val := os.Getenv("AZURE_STORAGE_DIRECTORY"); val != "" {
+		c.AzureDirectory = val
+	}
+	if val := os.Getenv("AZURE_ACCESS_KEY"); val != "" {
+		c.AzureAccessKey = val
+	} else if val := os.Getenv("AZURE_STORAGE_ACCOUNT_KEY"); val != "" {
+		c.AzureAccessKey = val
+	}
 }

@@ -11,6 +11,7 @@ import (
 
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
 	"github.com/parquet-go/parquet-go"
+	"github.com/parquet-go/parquet-go/compress/zstd"
 	"f1-telemetry/internal/models"
 )
 
@@ -64,7 +65,9 @@ func (s *AzureADLSSink) SaveMotionRecords(ctx context.Context, sessionUID uint64
 		return nil
 	}
 	var buf bytes.Buffer
-	writer := parquet.NewGenericWriter[models.MotionParquet](&buf)
+	writer := parquet.NewGenericWriter[models.MotionParquet](&buf, parquet.Compression(&zstd.Codec{
+		Level: zstd.DefaultLevel,
+	}))
 	if _, err := writer.Write(records); err != nil {
 		return fmt.Errorf("failed to write motion records to parquet: %w", err)
 	}
@@ -81,7 +84,9 @@ func (s *AzureADLSSink) SaveLapRecords(ctx context.Context, sessionUID uint64, r
 		return nil
 	}
 	var buf bytes.Buffer
-	writer := parquet.NewGenericWriter[models.LapParquet](&buf)
+	writer := parquet.NewGenericWriter[models.LapParquet](&buf, parquet.Compression(&zstd.Codec{
+		Level: zstd.DefaultLevel,
+	}))
 	if _, err := writer.Write(records); err != nil {
 		return fmt.Errorf("failed to write lap records to parquet: %w", err)
 	}
@@ -98,7 +103,9 @@ func (s *AzureADLSSink) SaveTelemetryRecords(ctx context.Context, sessionUID uin
 		return nil
 	}
 	var buf bytes.Buffer
-	writer := parquet.NewGenericWriter[models.TelemetryParquet](&buf)
+	writer := parquet.NewGenericWriter[models.TelemetryParquet](&buf, parquet.Compression(&zstd.Codec{
+		Level: zstd.DefaultLevel,
+	}))
 	if _, err := writer.Write(records); err != nil {
 		return fmt.Errorf("failed to write telemetry records to parquet: %w", err)
 	}
@@ -115,7 +122,9 @@ func (s *AzureADLSSink) SaveStatusRecords(ctx context.Context, sessionUID uint64
 		return nil
 	}
 	var buf bytes.Buffer
-	writer := parquet.NewGenericWriter[models.StatusParquet](&buf)
+	writer := parquet.NewGenericWriter[models.StatusParquet](&buf, parquet.Compression(&zstd.Codec{
+		Level: zstd.DefaultLevel,
+	}))
 	if _, err := writer.Write(records); err != nil {
 		return fmt.Errorf("failed to write status records to parquet: %w", err)
 	}
@@ -132,7 +141,9 @@ func (s *AzureADLSSink) SaveSessionRecords(ctx context.Context, sessionUID uint6
 		return nil
 	}
 	var buf bytes.Buffer
-	writer := parquet.NewGenericWriter[models.SessionParquet](&buf)
+	writer := parquet.NewGenericWriter[models.SessionParquet](&buf, parquet.Compression(&zstd.Codec{
+		Level: zstd.DefaultLevel,
+	}))
 	if _, err := writer.Write(records); err != nil {
 		return fmt.Errorf("failed to write session records to parquet: %w", err)
 	}
@@ -149,7 +160,9 @@ func (s *AzureADLSSink) SaveEventRecords(ctx context.Context, sessionUID uint64,
 		return nil
 	}
 	var buf bytes.Buffer
-	writer := parquet.NewGenericWriter[models.EventParquet](&buf)
+	writer := parquet.NewGenericWriter[models.EventParquet](&buf, parquet.Compression(&zstd.Codec{
+		Level: zstd.DefaultLevel,
+	}))
 	if _, err := writer.Write(records); err != nil {
 		return fmt.Errorf("failed to write event records to parquet: %w", err)
 	}
@@ -166,7 +179,9 @@ func (s *AzureADLSSink) SaveParticipantsRecords(ctx context.Context, sessionUID 
 		return nil
 	}
 	var buf bytes.Buffer
-	writer := parquet.NewGenericWriter[models.ParticipantParquet](&buf)
+	writer := parquet.NewGenericWriter[models.ParticipantParquet](&buf, parquet.Compression(&zstd.Codec{
+		Level: zstd.DefaultLevel,
+	}))
 	if _, err := writer.Write(records); err != nil {
 		return fmt.Errorf("failed to write participants records to parquet: %w", err)
 	}
@@ -183,7 +198,9 @@ func (s *AzureADLSSink) SaveCarSetupRecords(ctx context.Context, sessionUID uint
 		return nil
 	}
 	var buf bytes.Buffer
-	writer := parquet.NewGenericWriter[models.CarSetupParquet](&buf)
+	writer := parquet.NewGenericWriter[models.CarSetupParquet](&buf, parquet.Compression(&zstd.Codec{
+		Level: zstd.DefaultLevel,
+	}))
 	if _, err := writer.Write(records); err != nil {
 		return fmt.Errorf("failed to write setups records to parquet: %w", err)
 	}
@@ -200,7 +217,9 @@ func (s *AzureADLSSink) SaveFinalClassificationRecords(ctx context.Context, sess
 		return nil
 	}
 	var buf bytes.Buffer
-	writer := parquet.NewGenericWriter[models.FinalClassificationParquet](&buf)
+	writer := parquet.NewGenericWriter[models.FinalClassificationParquet](&buf, parquet.Compression(&zstd.Codec{
+		Level: zstd.DefaultLevel,
+	}))
 	if _, err := writer.Write(records); err != nil {
 		return fmt.Errorf("failed to write classification records to parquet: %w", err)
 	}
@@ -217,7 +236,9 @@ func (s *AzureADLSSink) SaveCarDamageRecords(ctx context.Context, sessionUID uin
 		return nil
 	}
 	var buf bytes.Buffer
-	writer := parquet.NewGenericWriter[models.CarDamageParquet](&buf)
+	writer := parquet.NewGenericWriter[models.CarDamageParquet](&buf, parquet.Compression(&zstd.Codec{
+		Level: zstd.DefaultLevel,
+	}))
 	if _, err := writer.Write(records); err != nil {
 		return fmt.Errorf("failed to write damage records to parquet: %w", err)
 	}
@@ -234,7 +255,9 @@ func (s *AzureADLSSink) SaveSessionHistoryRecords(ctx context.Context, sessionUI
 		return nil
 	}
 	var buf bytes.Buffer
-	writer := parquet.NewGenericWriter[models.SessionHistoryParquet](&buf)
+	writer := parquet.NewGenericWriter[models.SessionHistoryParquet](&buf, parquet.Compression(&zstd.Codec{
+		Level: zstd.DefaultLevel,
+	}))
 	if _, err := writer.Write(records); err != nil {
 		return fmt.Errorf("failed to write history records to parquet: %w", err)
 	}
@@ -251,7 +274,9 @@ func (s *AzureADLSSink) SaveTyreSetRecords(ctx context.Context, sessionUID uint6
 		return nil
 	}
 	var buf bytes.Buffer
-	writer := parquet.NewGenericWriter[models.TyreSetParquet](&buf)
+	writer := parquet.NewGenericWriter[models.TyreSetParquet](&buf, parquet.Compression(&zstd.Codec{
+		Level: zstd.DefaultLevel,
+	}))
 	if _, err := writer.Write(records); err != nil {
 		return fmt.Errorf("failed to write tyre sets records to parquet: %w", err)
 	}
@@ -268,7 +293,9 @@ func (s *AzureADLSSink) SaveMotionExRecords(ctx context.Context, sessionUID uint
 		return nil
 	}
 	var buf bytes.Buffer
-	writer := parquet.NewGenericWriter[models.MotionExParquet](&buf)
+	writer := parquet.NewGenericWriter[models.MotionExParquet](&buf, parquet.Compression(&zstd.Codec{
+		Level: zstd.DefaultLevel,
+	}))
 	if _, err := writer.Write(records); err != nil {
 		return fmt.Errorf("failed to write motion ex records to parquet: %w", err)
 	}
@@ -287,9 +314,9 @@ func (s *AzureADLSSink) saveParquet(ctx context.Context, sessionUID uint64, pack
 	// Create partitioned path
 	var path string
 	if s.directory != "" {
-		path = fmt.Sprintf("%s/%d/%s/dt=%s/%s", s.directory, sessionUID, packetType, dateStr, fileName)
+		path = fmt.Sprintf("%s/dt=%s/session_uid=%d/packet_type=%s/%s", s.directory, dateStr, sessionUID, packetType, fileName)
 	} else {
-		path = fmt.Sprintf("%d/%s/dt=%s/%s", sessionUID, packetType, dateStr, fileName)
+		path = fmt.Sprintf("dt=%s/session_uid=%d/packet_type=%s/%s", dateStr, sessionUID, packetType, fileName)
 	}
 
 	if s.enabled && s.client != nil {
@@ -307,7 +334,7 @@ func (s *AzureADLSSink) saveParquet(ctx context.Context, sessionUID uint64, pack
 	}
 
 	// Local Fallback writing
-	localDir := filepath.Join("data", "parquet", fmt.Sprintf("%d", sessionUID), packetType, "dt="+dateStr)
+	localDir := filepath.Join("data", "parquet", "dt="+dateStr, "session_uid="+fmt.Sprintf("%d", sessionUID), "packet_type="+packetType)
 	if err := os.MkdirAll(localDir, 0755); err != nil {
 		return fmt.Errorf("failed to create local storage directory: %w", err)
 	}
