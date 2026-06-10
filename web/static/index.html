@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 2025 Live Telemetry HUD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar/Config Panel -->
+        <header class="main-header">
+            <div class="brand">
+                <span class="f1-tag">F1</span>
+                <h1>Telemetry Ingestion Hub</h1>
+            </div>
+            
+            <div class="header-actions">
+                <div id="status-badge" class="badge idle">
+                    <span class="dot"></span>
+                    <span class="text">Inativo</span>
+                </div>
+                <button id="btn-toggle-capture" class="btn btn-primary">Iniciar Captura</button>
+                <button id="btn-settings" class="btn btn-secondary">Configurações</button>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Layout -->
+        <main class="dashboard-grid">
+            
+            <!-- Left Panel: Session Metadata -->
+            <section class="card session-card">
+                <h2 class="card-title">Metadados da Sessão</h2>
+                <div class="metadata-list">
+                    <div class="meta-item">
+                        <span class="label">Pista (Track):</span>
+                        <span id="meta-track" class="value">Aguardando jogo...</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="label">Veículo (Vehicle):</span>
+                        <span id="meta-vehicle" class="value">Aguardando jogo...</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="label">Tipo de Sessão:</span>
+                        <span id="meta-session-type" class="value">Aguardando...</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="label">ID da Sessão:</span>
+                        <span id="meta-session-uid" class="value">------------------</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="label">Voltas Completadas:</span>
+                        <span id="meta-laps" class="value">0 / --</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="label">Melhor Volta (Best Lap):</span>
+                        <span id="meta-best-lap" class="value">--:--.---</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="label">Melhores Setores:</span>
+                        <span id="meta-best-sectors" class="value-sectors">S1: --.--- | S2: --.--- | S3: --.---</span>
+                    </div>
+                </div>
+                <div class="stats-footer">
+                    <span>Pacotes UDP Recebidos: <strong id="packets-count">0</strong></span>
+                </div>
+            </section>
+
+            <!-- Center Panel: Driver HUD -->
+            <section class="card hud-card">
+                <h2 class="card-title">Live Driver Telemetry</h2>
+                
+                <div class="hud-gauges">
+                    <!-- Throttle & Brake Pedals (Vertical Bars) -->
+                    <div class="pedals-container">
+                        <div class="pedal-bar brake-bar">
+                            <div id="bar-brake" class="fill" style="height: 0%"></div>
+                            <span class="pedal-label">B</span>
+                        </div>
+                        <div class="pedal-bar throttle-bar">
+                            <div id="bar-throttle" class="fill" style="height: 0%"></div>
+                            <span class="pedal-label">A</span>
+                        </div>
+                    </div>
+
+                    <!-- Speed & Gear Display -->
+                    <div class="telemetry-core">
+                        <div class="gear-outer">
+                            <div id="display-gear" class="gear-value">N</div>
+                            <div class="gear-sub">MARCHA</div>
+                        </div>
+                        <div class="speed-container">
+                            <span id="display-speed" class="speed-value">0</span>
+                            <span class="speed-unit">km/h</span>
+                        </div>
+                    </div>
+
+                    <!-- Engine RPM Circular/Linear Gauge -->
+                    <div class="rpm-container">
+                        <div class="rpm-label">
+                            <span>RPM: <strong id="display-rpm">0</strong></span>
+                        </div>
+                        <div class="rpm-leds" id="rpm-led-strip">
+                            <!-- LEDs generated via JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel: Tyre Temperature and Pressures -->
+            <section class="card tyres-card">
+                <h2 class="card-title">Temperatura e Pressão dos Pneus</h2>
+                <div class="car-tyres-grid">
+                    <!-- Front Left -->
+                    <div class="tyre-card FL">
+                        <div class="tyre-loc">FL</div>
+                        <div class="tyre-temp"><span id="tyre-temp-fl">--</span>°C</div>
+                        <div class="tyre-press"><span id="tyre-press-fl">--.-</span> psi</div>
+                    </div>
+                    <!-- Front Right -->
+                    <div class="tyre-card FR">
+                        <div class="tyre-loc">FR</div>
+                        <div class="tyre-temp"><span id="tyre-temp-fr">--</span>°C</div>
+                        <div class="tyre-press"><span id="tyre-press-fr">--.-</span> psi</div>
+                    </div>
+                    <!-- Rear Left -->
+                    <div class="tyre-card RL">
+                        <div class="tyre-loc">RL</div>
+                        <div class="tyre-temp"><span id="tyre-temp-rl">--</span>°C</div>
+                        <div class="tyre-press"><span id="tyre-press-rl">--.-</span> psi</div>
+                    </div>
+                    <!-- Rear Right -->
+                    <div class="tyre-card RR">
+                        <div class="tyre-loc">RR</div>
+                        <div class="tyre-temp"><span id="tyre-temp-rr">--</span>°C</div>
+                        <div class="tyre-press"><span id="tyre-press-rr">--.-</span> psi</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- System Logs Console -->
+            <section class="card logs-card">
+                <h2 class="card-title">Terminal de Eventos do Coletor</h2>
+                <div id="logs-console" class="console">
+                    <div class="log-line system">Iniciando sistema de telemetria...</div>
+                </div>
+            </section>
+
+            <!-- UDP Audit Console -->
+            <section class="card udp-audit-card">
+                <h2 class="card-title">Auditoria UDP (Tempo Real)</h2>
+                <div class="table-container">
+                    <table class="audit-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Pacote</th>
+                                <th>Qtd</th>
+                                <th>Lake</th>
+                            </tr>
+                        </thead>
+                        <tbody id="udp-audit-rows">
+                            <tr data-id="0"><td>0</td><td>Motion</td><td class="count">0</td><td><span class="status-badge success">✅</span></td></tr>
+                            <tr data-id="1"><td>1</td><td>Session</td><td class="count">0</td><td><span class="status-badge success">✅</span></td></tr>
+                            <tr data-id="2"><td>2</td><td>Lap Data</td><td class="count">0</td><td><span class="status-badge success">✅</span></td></tr>
+                            <tr data-id="3"><td>3</td><td>Event</td><td class="count">0</td><td><span class="status-badge success">✅</span></td></tr>
+                            <tr data-id="4"><td>4</td><td>Participants</td><td class="count">0</td><td><span class="status-badge success">✅</span></td></tr>
+                            <tr data-id="5"><td>5</td><td>Car Setups</td><td class="count">0</td><td><span class="status-badge success">✅</span></td></tr>
+                            <tr data-id="6"><td>6</td><td>Car Telemetry</td><td class="count">0</td><td><span class="status-badge success">✅</span></td></tr>
+                            <tr data-id="7"><td>7</td><td>Car Status</td><td class="count">0</td><td><span class="status-badge success">✅</span></td></tr>
+                            <tr data-id="8"><td>8</td><td>Final Classification</td><td class="count">0</td><td><span class="status-badge success">✅</span></td></tr>
+                            <tr data-id="9"><td>9</td><td>Lobby Info</td><td class="count">0</td><td><span class="status-badge error">❌</span></td></tr>
+                            <tr data-id="10"><td>10</td><td>Car Damage</td><td class="count">0</td><td><span class="status-badge success">✅</span></td></tr>
+                            <tr data-id="11"><td>11</td><td>Session History</td><td class="count">0</td><td><span class="status-badge success">✅</span></td></tr>
+                            <tr data-id="12"><td>12</td><td>Tyre Sets</td><td class="count">0</td><td><span class="status-badge success">✅</span></td></tr>
+                            <tr data-id="13"><td>13</td><td>Motion Ex</td><td class="count">0</td><td><span class="status-badge success">✅</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Settings Overlay Modal -->
+    <div id="settings-modal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Configurações do Ingestion Pipe</h2>
+                <button id="btn-close-settings" class="btn-close">&times;</button>
+            </div>
+            <form id="form-config" class="modal-body">
+                <div class="form-group">
+                    <label for="cfg-udp-port">Porta UDP (Escuta):</label>
+                    <input type="number" id="cfg-udp-port" required value="20777">
+                </div>
+                <div class="form-group">
+                    <label for="cfg-kafka-broker">Kafka Broker address:</label>
+                    <input type="text" id="cfg-kafka-broker" required value="localhost:9092">
+                </div>
+                <div class="form-group">
+                    <label for="cfg-kafka-topic">Tópico Kafka:</label>
+                    <input type="text" id="cfg-kafka-topic" required value="f1-telemetry">
+                </div>
+                <hr>
+                <h3>Azure ADLS Gen2 Config (Opcional)</h3>
+                <div class="form-group">
+                    <label for="cfg-azure-account">Azure Storage Account:</label>
+                    <input type="text" id="cfg-azure-account" placeholder="Minha conta de armazenamento">
+                </div>
+                <div class="form-group">
+                    <label for="cfg-azure-key">Azure Storage Access Key:</label>
+                    <input type="password" id="cfg-azure-key" placeholder="Chave de Acesso Primária">
+                </div>
+                <div class="form-group">
+                    <label for="cfg-azure-container">Container Name:</label>
+                    <input type="text" id="cfg-azure-container" placeholder="Ex: f1-lake">
+                </div>
+                <div class="form-group">
+                    <label for="cfg-azure-dir">Diretório Base:</label>
+                    <input type="text" id="cfg-azure-dir" placeholder="Ex: telemetry-raw">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="btn-cancel-settings" class="btn btn-secondary">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar e Aplicar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
