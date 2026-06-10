@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # F1 Telemetry Collector (UDP Receiver and Web UI Dashboard)
+  f1-collector:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: f1-collector
+    command: ["./f1-collector"]
+    ports:
+      - "20777:20777/udp"
+      - "8080:8080"
+    environment:
+      - KAFKA_BROKER=redpanda:19092
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # F1 Telemetry Sink (Kafka Consumer to Parquet & Azure ADLS Gen2)
+  f1-sink:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: f1-sink
+    command: ["./f1-sink"]
+    environment:
+      - KAFKA_BROKER=redpanda:19092
+      
+      # Azure ADLS Gen2 credentials (replace with your actual values)
+      - AZURE_STORAGE_ACCOUNT_NAME=<your-account-name>
+      - AZURE_STORAGE_ACCOUNT_KEY=<your-account-key>
+      - AZURE_STORAGE_CONTAINER=<your-container>
+      - AZURE_STORAGE_DIRECTORY=<your-directory>
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Kafka
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v23.3.3
+    container_name: f1-redpanda
+    command:
+      - redpanda start
+      - --smp 1
+      - --overprovisioned
+      - --kafka-addr internal://0.0.0.0:19092,external://0.0.0.0:9092
+      - --advertise-kafka-addr internal://redpanda:19092,external://localhost:9092
+      - --pandaproxy-addr 0.0.0.0:8082
+      - --advertise-pandaproxy-addr localhost:8082
+      - --rpc-addr 0.0.0.0:33145
+      - --advertise-rpc-addr redpanda:33145
+    ports:
+      - "9092:9092"
+      - "8082:8082"
+    healthcheck:
+      test: ["CMD", "rpk", "cluster", "info"]
+      interval: 5s
+      timeout: 2s
+      retries: 5
+
+
